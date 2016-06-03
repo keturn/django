@@ -539,6 +539,12 @@ class BaseDatabaseWrapper(object):
         """
         return DatabaseErrorWrapper(self)
 
+    def chunked_cursor(self):
+        """
+        Returns a cursor which will try to avoid caching in the backend.
+        """
+        return self.cursor()
+
     def make_debug_cursor(self, cursor):
         """
         Creates a cursor that logs all queries in self.queries_log.

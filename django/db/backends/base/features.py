@@ -22,7 +22,7 @@ class BaseDatabaseFeatures(object):
     # constraint exists and some fields are nullable but not all of them?
     supports_partially_nullable_unique_constraints = True
 
-    can_use_chunked_reads = True
+    has_safe_chunked_reads = True
     can_return_id_from_insert = False
     can_return_ids_from_bulk_insert = False
     has_bulk_insert = False

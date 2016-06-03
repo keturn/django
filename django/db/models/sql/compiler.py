@@ -829,8 +829,10 @@ class SQLCompiler(object):
                 return iter([])
             else:
                 return
-
-        cursor = self.connection.cursor()
+        if self.query.chunked_fetch:
+            cursor = self.connection.chunked_cursor()
+        else:
+            cursor = self.connection.cursor()
         try:
             cursor.execute(sql, params)
         except Exception:
@@ -858,11 +860,13 @@ class SQLCompiler(object):
             cursor, self.connection.features.empty_fetchmany_value,
             self.col_count
         )
-        if not self.connection.features.can_use_chunked_reads:
+        if (not self.connection.features.has_safe_chunked_reads and
+                not self.query.chunked_fetch):
             try:
                 # If we are using non-chunked reads, we return the same data
                 # structure as normally, but ensure it is all read into memory
-                # before going any further.
+                # before going any further. If the user requests chunked_fetch
+                # we will honor that.
                 return list(result)
             finally:
                 # done with the cursor
