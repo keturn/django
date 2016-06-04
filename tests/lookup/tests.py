@@ -90,6 +90,30 @@ class LookupTests(TestCase):
             ['Article 4'],
             transform=attrgetter('headline'))
 
+    def test_chunked(self):
+        # Each QuerySet gets iterator(), which is a generator that "lazily"
+        # returns results using database-level iteration.
+        self.assertIsInstance(Article.objects.all().chunked(), collections.Iterator)
+
+        self.assertQuerysetEqual(
+            Article.objects.all().chunked(),
+            [
+                'Article 5',
+                'Article 6',
+                'Article 4',
+                'Article 2',
+                'Article 3',
+                'Article 7',
+                'Article 1',
+            ],
+            transform=attrgetter('headline')
+        )
+        # iterator() can be used on any QuerySet.
+        self.assertQuerysetEqual(
+            Article.objects.filter(headline__endswith='4').chunked(),
+            ['Article 4'],
+            transform=attrgetter('headline'))
+
     def test_count(self):
         # count() returns the number of objects matching search criteria.
         self.assertEqual(Article.objects.count(), 7)
